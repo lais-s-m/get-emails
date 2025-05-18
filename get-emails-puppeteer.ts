@@ -41,6 +41,7 @@ async function getAllEmailsFromAllTables(url: string): Promise<string[]> {
     let pageNum = 1;
     while (hasNext) {
       try {
+        console.log('entrou no try');
         // Espera os e-mails da tabela carregar
         await page.waitForSelector(`${tableSelector} a[href^="mailto:"]`, {
           timeout: 5000,
@@ -77,9 +78,14 @@ async function getAllEmailsFromAllTables(url: string): Promise<string[]> {
       }
 
       // Tenta clicar no botão "Próximo" relativo à tabela
-      const nextButton = await page.$(
-        `${tableSelector} ~ div .paginate_button.next:not(.disabled), ${tableSelector} .paginate_button.next:not(.disabled)`
-      );
+      let nextButton = null;
+      const tableId = await page.$eval(tableSelector, (table) => table.id);
+      if (tableId) {
+        nextButton = await page.$(
+          `#${tableId}_next.paginate_button.next:not(.disabled)`
+        );
+      }
+      console.log('nextButton =>', nextButton);
       if (nextButton) {
         await nextButton.click();
         await new Promise((res) => setTimeout(res, 1500)); // espera a próxima página carregar

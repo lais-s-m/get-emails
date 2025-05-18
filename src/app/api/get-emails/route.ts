@@ -11,7 +11,6 @@ export async function POST(req: NextRequest) {
     try {
       const emails = await getAllEmailsFromAllTables(url);
       emails.forEach((email) => allEmails.add(email));
-      emails.filter((email) => email.includes('<img'));
     } catch {
       // ignora erro de uma URL
     }
