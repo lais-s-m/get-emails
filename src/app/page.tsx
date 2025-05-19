@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [showContainer, setShowContainer] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [textValue, setTextValue] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,17 +18,22 @@ export default function Home() {
         .split(',')
         .map((url) => url.trim())
         .filter((url) => url.length > 0);
-      const res = await fetch('/api/get-emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ urls }),
-      });
+      const res = await fetch(
+        'https://get-emails-backend.onrender.com/get-emails',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls }),
+        }
+      );
       const data = await res.json();
+      console.log(data);
       setEmails(data.emails || []);
     } catch {
       setEmails([]);
     } finally {
       setLoading(false);
+      setShowContainer(true);
     }
   };
 
@@ -72,20 +78,21 @@ export default function Home() {
           Digite as URLs separadas por vírgula
         </span>
       </div>
-
-      <div className="flex flex-col w-[280px] h-[500px] overflow-x-auto text-white border border-gray-500 rounded-md p-2">
-        {emails.length > 0 && (
-          <button
-            className="btn btn-success mb-2"
-            onClick={handleCopy}
-          >
-            {copied ? 'Copiado!' : 'Copiar'}
-          </button>
-        )}
-        {emails.length > 0
-          ? emails.map((email) => <p key={email}>{email}</p>)
-          : textValue && !loading && <p>Nenhum e-mail encontrado.</p>}
-      </div>
+      {showContainer && (
+        <div className="flex flex-col w-[280px] h-[500px] overflow-x-auto text-white border border-gray-500 rounded-md p-2">
+          {emails.length > 0 && (
+            <button
+              className="btn btn-success mb-2"
+              onClick={handleCopy}
+            >
+              {copied ? 'Copiado!' : 'Copiar'}
+            </button>
+          )}
+          {emails.length > 0
+            ? emails.map((email) => <p key={email}>{email}</p>)
+            : textValue && !loading && <p>Nenhum e-mail encontrado.</p>}
+        </div>
+      )}
     </div>
   );
 }
